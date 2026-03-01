@@ -80,8 +80,14 @@ interface PetStore {
   deletePet: (id: string) => void;
   
   addVaccine: (v: Vaccine) => void;
+  updateVaccine: (id: string, data: Partial<Vaccine>) => void;
+  deleteVaccine: (id: string) => void;
   addMedication: (m: Medication) => void;
+  updateMedication: (id: string, data: Partial<Medication>) => void;
+  deleteMedication: (id: string) => void;
   addVisit: (v: Visit) => void;
+  updateVisit: (id: string, data: Partial<Visit>) => void;
+  deleteVisit: (id: string) => void;
   
   addReminder: (r: Reminder) => void;
   toggleReminder: (id: string) => void;
@@ -118,8 +124,14 @@ export const usePetStore = create<PetStore>()(
       })),
 
       addVaccine: (v) => set((s) => ({ vaccines: [...s.vaccines, v] })),
+      updateVaccine: (id, data) => set((s) => ({ vaccines: s.vaccines.map((v) => v.id === id ? { ...v, ...data } : v) })),
+      deleteVaccine: (id) => set((s) => ({ vaccines: s.vaccines.filter((v) => v.id !== id) })),
       addMedication: (m) => set((s) => ({ medications: [...s.medications, m] })),
+      updateMedication: (id, data) => set((s) => ({ medications: s.medications.map((m) => m.id === id ? { ...m, ...data } : m) })),
+      deleteMedication: (id) => set((s) => ({ medications: s.medications.filter((m) => m.id !== id) })),
       addVisit: (v) => set((s) => ({ visits: [...s.visits, v] })),
+      updateVisit: (id, data) => set((s) => ({ visits: s.visits.map((v) => v.id === id ? { ...v, ...data } : v) })),
+      deleteVisit: (id) => set((s) => ({ visits: s.visits.filter((v) => v.id !== id) })),
       
       addReminder: (r) => set((s) => ({ reminders: [...s.reminders, r] })),
       toggleReminder: (id) => set((s) => ({
