@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { Crown, Check, ArrowLeft } from 'lucide-react';
+import { Crown, Check, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/lib/i18n';
 import { usePremium } from '@/hooks/usePremium';
+import { useAuth } from '@/hooks/useAuth';
 
 interface UpgradePremiumProps {
   onBack: () => void;
@@ -10,7 +11,8 @@ interface UpgradePremiumProps {
 
 const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
   const { t } = useTranslation();
-  const { tier, isPremium } = usePremium();
+  const { user } = useAuth();
+  const { tier, isPremium, checkoutLoading, startCheckout, subscriptionStatus, subscriptionEnd, openBillingPortal } = usePremium();
 
   const features = [
     t('premium.unlimitedPets'),
@@ -20,6 +22,8 @@ const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
     t('premium.noAds'),
     t('premium.pdfHistory'),
   ];
+
+  const canUpgrade = !!user && !isPremium && subscriptionStatus !== 'active' && subscriptionStatus !== 'incomplete';
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -53,10 +57,41 @@ const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
         </p>
       </div>
 
-      {!isPremium && (
-        <Button className="w-full rounded-xl text-base py-6 gap-2" disabled>
-          <Crown size={18} /> {t('premium.upgrade')}
+      {canUpgrade && (
+        <Button
+          className="w-full rounded-xl text-base py-6 gap-2"
+          onClick={startCheckout}
+          disabled={checkoutLoading}
+        >
+          {checkoutLoading ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
+            <Crown size={18} />
+          )}
+          {checkoutLoading ? t('premium.processing') : t('premium.upgrade')}
         </Button>
+      )}
+
+      {isPremium && (
+        <div className="space-y-3">
+          <div className="bg-primary/5 rounded-xl p-4 text-center">
+            <p className="text-sm font-semibold text-primary">✓ {t('premium.activeSubscription')}</p>
+            {subscriptionEnd && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('premium.nextBilling')}: {new Date(subscriptionEnd).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+          <Button variant="outline" className="w-full rounded-xl gap-2" onClick={openBillingPortal}>
+            {t('premium.manageSubscription')}
+          </Button>
+        </div>
+      )}
+
+      {!user && (
+        <p className="text-xs text-center text-muted-foreground">
+          {t('premium.signInRequired')}
+        </p>
       )}
 
       <p className="text-xs text-center text-muted-foreground">

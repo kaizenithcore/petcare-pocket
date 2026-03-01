@@ -27,6 +27,8 @@ Deno.serve(async (req) => {
       event = JSON.parse(body) as Stripe.Event;
     }
 
+    console.log(`[WEBHOOK] Processing event: ${event.type} (${event.id})`);
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -36,13 +38,16 @@ Deno.serve(async (req) => {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.user_id;
-        if (userId) {
+        if (userId && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
           await supabaseAdmin.from('profiles').update({
             subscription_tier: 'premium',
+            subscription_status: 'active',
             stripe_customer_id: session.customer as string,
+            stripe_subscription_id: subscription.id,
             subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
           }).eq('user_id', userId);
+          console.log(`[WEBHOOK] User ${userId} upgraded to premium`);
         }
         break;
       }
@@ -52,11 +57,14 @@ Deno.serve(async (req) => {
         const customerId = subscription.customer as string;
         const { data: profile } = await supabaseAdmin.from('profiles').select('user_id').eq('stripe_customer_id', customerId).single();
         if (profile) {
-          const tier = subscription.status === 'active' ? 'premium' : 'free';
+          const isActive = subscription.status === 'active';
           await supabaseAdmin.from('profiles').update({
-            subscription_tier: tier,
+            subscription_tier: isActive ? 'premium' : 'free',
+            subscription_status: subscription.status,
+            stripe_subscription_id: subscription.id,
             subscription_expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
           }).eq('user_id', profile.user_id);
+          console.log(`[WEBHOOK] Subscription updated for user ${profile.user_id}: ${subscription.status}`);
         }
         break;
       }
@@ -68,8 +76,10 @@ Deno.serve(async (req) => {
         if (profile) {
           await supabaseAdmin.from('profiles').update({
             subscription_tier: 'free',
+            subscription_status: 'canceled',
             subscription_expires_at: null,
           }).eq('user_id', profile.user_id);
+          console.log(`[WEBHOOK] Subscription canceled for user ${profile.user_id}`);
         }
         break;
       }
@@ -80,8 +90,9 @@ Deno.serve(async (req) => {
         const { data: profile } = await supabaseAdmin.from('profiles').select('user_id').eq('stripe_customer_id', customerId).single();
         if (profile) {
           await supabaseAdmin.from('profiles').update({
-            subscription_tier: 'free',
+            subscription_status: 'past_due',
           }).eq('user_id', profile.user_id);
+          console.log(`[WEBHOOK] Payment failed for user ${profile.user_id}`);
         }
         break;
       }

@@ -19,7 +19,7 @@ interface SettingsViewProps {
 const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
   const { t, language, setLanguage } = useTranslation();
   const { user, isGuest, signOut, resetPassword, updatePassword } = useAuth();
-  const { tier, isPremium } = usePremium();
+  const { tier, isPremium, subscriptionEnd, openBillingPortal } = usePremium();
   const { loadSettings, saveSettings, deleteAccount, isCloud } = useCloudStore();
   const { pets, vaccines, medications, visits, symptomLogs } = usePetStore();
   const navigate = useNavigate();
@@ -173,7 +173,7 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
       </div>
 
       {/* Subscription */}
-      <div className="bg-card rounded-xl p-4 shadow-card">
+      <div className="bg-card rounded-xl p-4 shadow-card space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Crown size={18} className={isPremium ? 'text-peach-foreground' : 'text-muted-foreground'} />
@@ -182,6 +182,11 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
               <p className="text-xs text-muted-foreground">
                 {t('settings.currentPlan')}: {isPremium ? t('settings.premium') : t('settings.free')}
               </p>
+              {isPremium && subscriptionEnd && (
+                <p className="text-xs text-muted-foreground">
+                  {t('premium.nextBilling')}: {new Date(subscriptionEnd).toLocaleDateString()}
+                </p>
+              )}
             </div>
           </div>
           {!isPremium && (
@@ -190,6 +195,11 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
             </button>
           )}
         </div>
+        {isPremium && (
+          <Button variant="outline" size="sm" onClick={openBillingPortal} className="w-full rounded-xl text-xs gap-2">
+            <Crown size={14} /> {t('premium.manageSubscription')}
+          </Button>
+        )}
       </div>
 
       {/* Notifications */}
