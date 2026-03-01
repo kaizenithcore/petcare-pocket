@@ -267,7 +267,7 @@
     "serviceDescription": "Service Description",
     "serviceDescriptionText": "PetCare Pocket is a pet health management application developed by Kaizenith (Spain). It allows users to track pet health records, vaccinations, medications, vet visits, reminders, and symptoms.",
     "planLimitations": "Plan Limitations",
-    "planLimitationsText": "The Free plan is limited to 1 pet and 10 records per category (vaccines, medications, visits). The Premium plan ($4.99/month) provides unlimited pets, unlimited records, advanced reminders, and an ad-free experience.",
+    "planLimitationsText": "The Free plan is limited to 1 pet and 10 records per category (vaccines, medications, visits). The Premium plan (4.99€/month) provides unlimited pets, unlimited records, advanced reminders, and an ad-free experience.",
     "medicalDisclaimer": "Medical Disclaimer",
     "medicalDisclaimerText": "PetCare Pocket is NOT a veterinary medical service. The Symptom Checker provides general informational guidance only and does not constitute veterinary advice, diagnosis, or treatment. Always consult a licensed veterinarian for your pet's health needs. In case of emergency, contact your nearest veterinary clinic immediately. Kaizenith accepts no liability for health decisions made based on information provided by this application.",
     "acceptableUse": "Acceptable Use",
