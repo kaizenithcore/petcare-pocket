@@ -219,8 +219,9 @@
     "advancedReminders": "Advanced recurring reminders",
     "noAds": "No advertisements",
     "pdfHistory": "Stored PDF export history",
-    "price": "4.99€/month",
+    "price": "4.50€/month",
     "upgrade": "Upgrade Now",
+    "processing": "Processing...",
     "restore": "Restore Purchase",
     "currentPlan": "You're on the {plan} plan",
     "freeLimits": "Free plan: 1 pet, 10 records per category",
@@ -230,7 +231,15 @@
     "maybeLater": "Maybe later",
     "bannerUnlimited": "Unlimited pets and health history",
     "bannerSync": "Sync across all your devices",
-    "bannerVaccine": "Never miss a vaccine again"
+    "bannerVaccine": "Never miss a vaccine again",
+    "activated": "Premium Activated! 🎉",
+    "activatedDesc": "You now have full access to all PetCare features.",
+    "verifying": "Verifying your subscription...",
+    "redirecting": "Redirecting to dashboard...",
+    "activeSubscription": "Premium Active",
+    "nextBilling": "Next billing date",
+    "manageSubscription": "Manage Subscription",
+    "signInRequired": "Sign in to upgrade to Premium"
   },
   "legal": {
     "privacyPolicy": "Privacy Policy",
