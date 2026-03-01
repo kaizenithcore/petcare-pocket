@@ -201,6 +201,24 @@ export const useCloudStore = () => {
     await loadCloudData();
   }, [user, loadCloudData]);
 
+  const updateVaccineCloud = useCallback(async (id: string, data: Partial<Vaccine>) => {
+    if (!user) return;
+    const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.dateAdministered !== undefined) updateData.date_administered = data.dateAdministered;
+    if (data.nextDueDate !== undefined) updateData.next_due_date = data.nextDueDate;
+    if (data.clinicName !== undefined) updateData.clinic_name = data.clinicName;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+    await supabase.from('vaccines').update(updateData).eq('id', id).eq('user_id', user.id);
+    await loadCloudData();
+  }, [user, loadCloudData]);
+
+  const deleteVaccineCloud = useCallback(async (id: string) => {
+    if (!user) return;
+    await supabase.from('vaccines').delete().eq('id', id).eq('user_id', user.id);
+    await loadCloudData();
+  }, [user, loadCloudData]);
+
   const addMedicationCloud = useCallback(async (m: Omit<Medication, 'id'>) => {
     if (!user) return;
     await supabase.from('medications').insert({
@@ -211,12 +229,48 @@ export const useCloudStore = () => {
     await loadCloudData();
   }, [user, loadCloudData]);
 
+  const updateMedicationCloud = useCallback(async (id: string, data: Partial<Medication>) => {
+    if (!user) return;
+    const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.dose !== undefined) updateData.dose = data.dose;
+    if (data.frequency !== undefined) updateData.frequency = data.frequency;
+    if (data.startDate !== undefined) updateData.start_date = data.startDate;
+    if (data.endDate !== undefined) updateData.end_date = data.endDate;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+    await supabase.from('medications').update(updateData).eq('id', id).eq('user_id', user.id);
+    await loadCloudData();
+  }, [user, loadCloudData]);
+
+  const deleteMedicationCloud = useCallback(async (id: string) => {
+    if (!user) return;
+    await supabase.from('medications').delete().eq('id', id).eq('user_id', user.id);
+    await loadCloudData();
+  }, [user, loadCloudData]);
+
   const addVisitCloud = useCallback(async (v: Omit<Visit, 'id'>) => {
     if (!user) return;
     await supabase.from('visits').insert({
       user_id: user.id, pet_id: v.petId, date: v.date,
       reason: v.reason, diagnosis: v.diagnosis, notes: v.notes,
     });
+    await loadCloudData();
+  }, [user, loadCloudData]);
+
+  const updateVisitCloud = useCallback(async (id: string, data: Partial<Visit>) => {
+    if (!user) return;
+    const updateData: Record<string, unknown> = {};
+    if (data.date !== undefined) updateData.date = data.date;
+    if (data.reason !== undefined) updateData.reason = data.reason;
+    if (data.diagnosis !== undefined) updateData.diagnosis = data.diagnosis;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+    await supabase.from('visits').update(updateData).eq('id', id).eq('user_id', user.id);
+    await loadCloudData();
+  }, [user, loadCloudData]);
+
+  const deleteVisitCloud = useCallback(async (id: string) => {
+    if (!user) return;
+    await supabase.from('visits').delete().eq('id', id).eq('user_id', user.id);
     await loadCloudData();
   }, [user, loadCloudData]);
 
@@ -313,8 +367,14 @@ export const useCloudStore = () => {
     updatePetCloud,
     deletePetCloud,
     addVaccineCloud,
+    updateVaccineCloud,
+    deleteVaccineCloud,
     addMedicationCloud,
+    updateMedicationCloud,
+    deleteMedicationCloud,
     addVisitCloud,
+    updateVisitCloud,
+    deleteVisitCloud,
     addReminderCloud,
     toggleReminderCloud,
     deleteReminderCloud,

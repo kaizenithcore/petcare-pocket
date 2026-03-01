@@ -106,7 +106,13 @@
     "dueDate": "Fecha límite",
     "notes": "Notas",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "updated": "Registro actualizado",
+    "deleted": "Registro eliminado",
+    "editVaccine": "Editar vacuna",
+    "editMedication": "Editar medicamento",
+    "editVisit": "Editar visita",
+    "editReminder": "Editar recordatorio"
   },
   "reminders": {
     "title": "Recordatorios",

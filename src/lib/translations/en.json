@@ -106,7 +106,13 @@
     "dueDate": "Due Date",
     "notes": "Notes",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "updated": "Record updated",
+    "deleted": "Record deleted",
+    "editVaccine": "Edit Vaccine",
+    "editMedication": "Edit Medication",
+    "editVisit": "Edit Visit",
+    "editReminder": "Edit Reminder"
   },
   "reminders": {
     "title": "Reminders",
