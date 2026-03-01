@@ -140,6 +140,9 @@ export const useCloudStore = () => {
         }
       }
 
+      // Mark migration as done BEFORE removing data, to prevent re-migration
+      // even if zustand persist re-creates the localStorage key.
+      localStorage.setItem('petcare-migrated', 'true');
       localStorage.removeItem('petcare-pocket');
       toast({ title: 'Data migrated to cloud successfully!' });
       await loadCloudData();
@@ -152,12 +155,13 @@ export const useCloudStore = () => {
   // Cloud CRUD operations
   const addPetCloud = useCallback(async (pet: Omit<Pet, 'id'>) => {
     if (!user) return;
-    const { data, error } = await supabase.from('pets').insert({
+    const { data, error } = await supabase.from('pets').upsert({
       user_id: user.id, name: pet.name, species: pet.species,
       breed: pet.breed, birthdate: pet.birthdate,
       weight: pet.weight, microchip_id: pet.microchipId,
       emergency_contact: pet.emergencyContact,
-    }).select().single();
+    }, { onConflict: 'unique_user_pet_name_species', ignoreDuplicates: true }).select().single();
+    if (error) console.error('addPetCloud error:', error);
     if (data) await loadCloudData();
     return data;
   }, [user, loadCloudData]);
@@ -278,14 +282,24 @@ export const useCloudStore = () => {
   }, [user]);
 
   // Auto-load cloud data on auth
+  // CRITICAL: Use a dedicated migration flag, NOT the presence of pet data in localStorage.
+  // Zustand persist writes cloud data back to localStorage after loadCloudData(),
+  // which would falsely trigger re-migration on every mount, causing exponential duplication.
   useEffect(() => {
     if (user && !isGuest) {
-      const localData = localStorage.getItem('petcare-pocket');
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        if (parsed?.state?.pets?.length > 0) {
-          migrateLocalData();
-          return;
+      const alreadyMigrated = localStorage.getItem('petcare-migrated');
+      if (!alreadyMigrated) {
+        const localData = localStorage.getItem('petcare-pocket');
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            if (parsed?.state?.pets?.length > 0) {
+              migrateLocalData();
+              return;
+            }
+          } catch {
+            // Corrupted localStorage, skip migration
+          }
         }
       }
       loadCloudData();
