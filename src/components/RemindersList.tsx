@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
 import { Bell, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { usePetStore } from '@/lib/store';
+import { useTranslation } from '@/lib/i18n';
 
 const RemindersList = () => {
-  const { activePetId, reminders, toggleReminder, pets } = usePetStore();
+  const { activePetId, reminders, toggleReminder } = usePetStore();
+  const { t } = useTranslation();
   const petReminders = reminders
     .filter((r) => r.petId === activePetId)
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
@@ -40,7 +42,7 @@ const RemindersList = () => {
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
             <Clock size={11} />
             {r.dueDate}
-            {isOverdue && <span className="text-destructive font-semibold ml-1">Overdue</span>}
+            {isOverdue && <span className="text-destructive font-semibold ml-1">{t('reminders.overdue')}</span>}
           </p>
         </div>
         {r.completed ? (
@@ -56,7 +58,7 @@ const RemindersList = () => {
     return (
       <div className="text-center py-6 text-muted-foreground">
         <Bell size={24} className="mx-auto mb-2 opacity-40" />
-        <p className="text-sm">No reminders set</p>
+        <p className="text-sm">{t('reminders.noReminders')}</p>
       </div>
     );
   }
@@ -67,7 +69,7 @@ const RemindersList = () => {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <AlertCircle size={14} className="text-destructive" />
-            <span className="text-xs font-semibold text-destructive uppercase tracking-wide">Overdue</span>
+            <span className="text-xs font-semibold text-destructive uppercase tracking-wide">{t('reminders.overdue')}</span>
           </div>
           <div className="space-y-2">
             {overdue.map((r) => <ReminderCard key={r.id} r={r} isOverdue />)}
@@ -76,7 +78,7 @@ const RemindersList = () => {
       )}
       {upcoming.length > 0 && (
         <div>
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Upcoming</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('reminders.upcoming')}</span>
           <div className="space-y-2 mt-2">
             {upcoming.map((r) => <ReminderCard key={r.id} r={r} />)}
           </div>
@@ -84,7 +86,7 @@ const RemindersList = () => {
       )}
       {completed.length > 0 && (
         <div>
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Completed</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('reminders.completed')}</span>
           <div className="space-y-2 mt-2">
             {completed.slice(0, 5).map((r) => <ReminderCard key={r.id} r={r} />)}
           </div>

@@ -113,9 +113,14 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          default_reminder_recurrence: string
+          default_snooze_duration: string
           display_name: string | null
           id: string
           language: string
+          notification_enabled: boolean
+          overdue_alerts_enabled: boolean
+          reminder_default_time: string
           stripe_customer_id: string | null
           subscription_expires_at: string | null
           subscription_tier: string
@@ -125,9 +130,14 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          default_reminder_recurrence?: string
+          default_snooze_duration?: string
           display_name?: string | null
           id?: string
           language?: string
+          notification_enabled?: boolean
+          overdue_alerts_enabled?: boolean
+          reminder_default_time?: string
           stripe_customer_id?: string | null
           subscription_expires_at?: string | null
           subscription_tier?: string
@@ -137,9 +147,14 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          default_reminder_recurrence?: string
+          default_snooze_duration?: string
           display_name?: string | null
           id?: string
           language?: string
+          notification_enabled?: boolean
+          overdue_alerts_enabled?: boolean
+          reminder_default_time?: string
           stripe_customer_id?: string | null
           subscription_expires_at?: string | null
           subscription_tier?: string

@@ -1,16 +1,12 @@
 import { motion } from 'framer-motion';
-import { Syringe, Pill, Stethoscope, Calendar, CheckCircle } from 'lucide-react';
+import { Syringe, Pill, Stethoscope, Calendar } from 'lucide-react';
 import { usePetStore } from '@/lib/store';
+import { useTranslation } from '@/lib/i18n';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const typeIcons = {
-  vaccine: Syringe,
-  medication: Pill,
-  visit: Stethoscope,
-};
 
 const PetHealthTabs = () => {
   const { activePetId, vaccines, medications, visits } = usePetStore();
+  const { t } = useTranslation();
   
   const petVaccines = vaccines.filter((v) => v.petId === activePetId);
   const petMeds = medications.filter((m) => m.petId === activePetId);
@@ -18,7 +14,7 @@ const PetHealthTabs = () => {
 
   const EmptyState = ({ label }: { label: string }) => (
     <div className="text-center py-8 text-muted-foreground">
-      <p className="text-sm">No {label} recorded yet</p>
+      <p className="text-sm">{label}</p>
     </div>
   );
 
@@ -31,18 +27,18 @@ const PetHealthTabs = () => {
     <Tabs defaultValue="vaccines" className="w-full">
       <TabsList className="w-full bg-muted rounded-xl p-1 h-auto">
         <TabsTrigger value="vaccines" className="flex-1 rounded-lg text-xs py-2 data-[state=active]:bg-card data-[state=active]:shadow-card">
-          💉 Vaccines
+          💉 {t('health.vaccines')}
         </TabsTrigger>
         <TabsTrigger value="medications" className="flex-1 rounded-lg text-xs py-2 data-[state=active]:bg-card data-[state=active]:shadow-card">
-          💊 Meds
+          💊 {t('health.medications')}
         </TabsTrigger>
         <TabsTrigger value="visits" className="flex-1 rounded-lg text-xs py-2 data-[state=active]:bg-card data-[state=active]:shadow-card">
-          🩺 Visits
+          🩺 {t('health.visits')}
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="vaccines" className="mt-3">
-        {petVaccines.length === 0 ? <EmptyState label="vaccines" /> : (
+        {petVaccines.length === 0 ? <EmptyState label={t('health.noVaccines')} /> : (
           <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="space-y-2">
             {petVaccines.map((v) => (
               <motion.div key={v.id} variants={item} className="bg-card rounded-xl p-4 shadow-card">
@@ -53,12 +49,12 @@ const PetHealthTabs = () => {
                   </div>
                   {v.nextDueDate && (
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Calendar size={12} /> Due {v.nextDueDate}
+                      <Calendar size={12} /> {t('health.due')} {v.nextDueDate}
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Given {v.dateAdministered} {v.clinicName && `at ${v.clinicName}`}
+                  {t('health.given')} {v.dateAdministered} {v.clinicName && `${t('health.at')} ${v.clinicName}`}
                 </p>
                 {v.notes && <p className="text-xs text-muted-foreground mt-1 italic">{v.notes}</p>}
               </motion.div>
@@ -68,7 +64,7 @@ const PetHealthTabs = () => {
       </TabsContent>
 
       <TabsContent value="medications" className="mt-3">
-        {petMeds.length === 0 ? <EmptyState label="medications" /> : (
+        {petMeds.length === 0 ? <EmptyState label={t('health.noMedications')} /> : (
           <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="space-y-2">
             {petMeds.map((m) => (
               <motion.div key={m.id} variants={item} className="bg-card rounded-xl p-4 shadow-card">
@@ -77,7 +73,7 @@ const PetHealthTabs = () => {
                   <span className="font-semibold text-sm text-foreground">{m.name}</span>
                   <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{m.frequency}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{m.dose} · {m.startDate} → {m.endDate || 'ongoing'}</p>
+                <p className="text-xs text-muted-foreground mt-1">{m.dose} · {m.startDate} → {m.endDate || t('health.ongoing')}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -85,7 +81,7 @@ const PetHealthTabs = () => {
       </TabsContent>
 
       <TabsContent value="visits" className="mt-3">
-        {petVisits.length === 0 ? <EmptyState label="vet visits" /> : (
+        {petVisits.length === 0 ? <EmptyState label={t('health.noVisits')} /> : (
           <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="space-y-2">
             {petVisits.map((v) => (
               <motion.div key={v.id} variants={item} className="bg-card rounded-xl p-4 shadow-card">
@@ -94,7 +90,7 @@ const PetHealthTabs = () => {
                   <span className="font-semibold text-sm text-foreground">{v.reason}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{v.date}</p>
-                {v.diagnosis && <p className="text-xs text-foreground/70 mt-1">Diagnosis: {v.diagnosis}</p>}
+                {v.diagnosis && <p className="text-xs text-foreground/70 mt-1">{t('health.diagnosis')}: {v.diagnosis}</p>}
               </motion.div>
             ))}
           </motion.div>

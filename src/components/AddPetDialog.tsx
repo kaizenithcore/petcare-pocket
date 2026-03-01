@@ -6,6 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePetStore, generateId, type Species } from '@/lib/store';
+import { useCloudStore } from '@/hooks/useCloudStore';
+import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/lib/i18n';
+import { useToast } from '@/hooks/use-toast';
 
 interface AddPetDialogProps {
   open: boolean;
@@ -14,25 +18,42 @@ interface AddPetDialogProps {
 
 const AddPetDialog = ({ open, onClose }: AddPetDialogProps) => {
   const { addPet } = usePetStore();
+  const { addPetCloud, isCloud } = useCloudStore();
+  const { user } = useAuth();
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const [name, setName] = useState('');
   const [species, setSpecies] = useState<Species>('dog');
   const [breed, setBreed] = useState('');
   const [birthdate, setBirthdate] = useState('');
   const [weight, setWeight] = useState('');
+  const [microchipId, setMicrochipId] = useState('');
   const [emergencyContact, setEmergencyContact] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim()) return;
-    addPet({
-      id: generateId(),
+    setSaving(true);
+
+    const petData = {
       name: name.trim(),
       species,
       breed,
       birthdate,
       weight: parseFloat(weight) || 0,
+      microchipId: microchipId || undefined,
       emergencyContact,
-    });
-    setName(''); setBreed(''); setBirthdate(''); setWeight(''); setEmergencyContact('');
+    };
+
+    if (isCloud && user) {
+      await addPetCloud(petData);
+      toast({ title: t('app.success'), description: t('pets.addNewPet') });
+    } else {
+      addPet({ id: generateId(), ...petData });
+    }
+
+    setSaving(false);
+    setName(''); setBreed(''); setBirthdate(''); setWeight(''); setMicrochipId(''); setEmergencyContact('');
     onClose();
   };
 
@@ -54,7 +75,7 @@ const AddPetDialog = ({ open, onClose }: AddPetDialogProps) => {
         className="w-full max-w-md bg-card rounded-2xl p-6 shadow-float max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-foreground">Add New Pet</h2>
+          <h2 className="text-xl font-bold text-foreground">{t('pets.addNewPet')}</h2>
           <button onClick={onClose} className="rounded-full p-1 hover:bg-muted transition-colors">
             <X size={20} className="text-muted-foreground" />
           </button>
@@ -62,43 +83,49 @@ const AddPetDialog = ({ open, onClose }: AddPetDialogProps) => {
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">{t('pets.name')} *</Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Luna" className="mt-1 rounded-xl" />
           </div>
           <div>
-            <Label>Species</Label>
+            <Label>{t('pets.species')}</Label>
             <Select value={species} onValueChange={(v) => setSpecies(v as Species)}>
               <SelectTrigger className="mt-1 rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="dog">🐕 Dog</SelectItem>
-                <SelectItem value="cat">🐈 Cat</SelectItem>
-                <SelectItem value="other">🐾 Other</SelectItem>
+                <SelectItem value="dog">🐕 {t('pets.dog')}</SelectItem>
+                <SelectItem value="cat">🐈 {t('pets.cat')}</SelectItem>
+                <SelectItem value="other">🐾 {t('pets.other')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label htmlFor="breed">Breed</Label>
+            <Label htmlFor="breed">{t('pets.breed')}</Label>
             <Input id="breed" value={breed} onChange={(e) => setBreed(e.target.value)} placeholder="Golden Retriever" className="mt-1 rounded-xl" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="birthdate">Birthdate</Label>
+              <Label htmlFor="birthdate">{t('pets.birthdate')}</Label>
               <Input id="birthdate" type="date" value={birthdate} onChange={(e) => setBirthdate(e.target.value)} className="mt-1 rounded-xl" />
             </div>
             <div>
-              <Label htmlFor="weight">Weight (kg)</Label>
+              <Label htmlFor="weight">{t('pets.weight')} ({t('pets.weightUnit')})</Label>
               <Input id="weight" type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="12" className="mt-1 rounded-xl" />
             </div>
           </div>
           <div>
-            <Label htmlFor="emergency">Emergency Contact</Label>
+            <Label htmlFor="microchip">{t('pets.microchipId')}</Label>
+            <Input id="microchip" value={microchipId} onChange={(e) => setMicrochipId(e.target.value)} className="mt-1 rounded-xl" />
+          </div>
+          <div>
+            <Label htmlFor="emergency">{t('pets.emergencyContact')}</Label>
             <Input id="emergency" value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)} placeholder="+1 555 0123" className="mt-1 rounded-xl" />
           </div>
         </div>
 
         <div className="flex gap-3 mt-6">
-          <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl">Cancel</Button>
-          <Button onClick={handleSubmit} disabled={!name.trim()} className="flex-1 rounded-xl">Add Pet</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl">{t('records.cancel')}</Button>
+          <Button onClick={handleSubmit} disabled={!name.trim() || saving} className="flex-1 rounded-xl">
+            {saving ? t('app.loading') : t('pets.addPet')}
+          </Button>
         </div>
       </motion.div>
     </motion.div>

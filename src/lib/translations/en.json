@@ -3,7 +3,9 @@
     "name": "PetCare Pocket",
     "welcome": "Welcome!",
     "guestMode": "Guest mode · Data stored locally on this device",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error"
   },
   "nav": {
     "home": "Home",
@@ -32,11 +34,21 @@
     "passwordResetSent": "Password reset link sent to your email.",
     "passwordUpdated": "Password updated successfully!",
     "tagline": "Your pet's health, simplified.",
-    "passwordMismatch": "Passwords don't match"
+    "passwordMismatch": "Passwords don't match",
+    "changeEmail": "Change Email",
+    "changePassword": "Change Password",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "This will permanently delete your account and all associated data.",
+    "accountDeleted": "Account deleted successfully."
   },
   "pets": {
     "addPet": "Add Pet",
     "addNewPet": "Add New Pet",
+    "editPet": "Edit Pet",
+    "deletePet": "Delete Pet",
+    "deleteWarning": "This will permanently delete all health records, reminders, and data for this pet.",
+    "petDeleted": "Pet deleted successfully",
+    "petUpdated": "Pet updated successfully",
     "noPets": "No pets yet",
     "noPetsDesc": "Add your first furry friend to get started",
     "name": "Name",
@@ -47,6 +59,7 @@
     "weightUnit": "kg",
     "emergencyContact": "Emergency Contact",
     "petInfo": "Pet Info",
+    "microchipId": "Microchip ID",
     "dog": "Dog",
     "cat": "Cat",
     "other": "Other"
@@ -63,7 +76,8 @@
     "given": "Given",
     "at": "at",
     "due": "Due",
-    "ongoing": "ongoing"
+    "ongoing": "ongoing",
+    "diagnosis": "Diagnosis"
   },
   "records": {
     "addVaccine": "Add Vaccine",
@@ -146,8 +160,14 @@
     "title": "Settings",
     "notifications": "Notification Preferences",
     "notificationsDesc": "Manage reminders and alerts",
+    "pushNotifications": "Push Notifications",
+    "reminderDefaultTime": "Default Reminder Time",
+    "overdueAlerts": "Overdue Alerts",
     "dataExport": "Data Export",
     "dataExportDesc": "Download your data as CSV",
+    "exportAll": "Export All Data",
+    "exporting": "Exporting...",
+    "exported": "Data exported successfully",
     "account": "Account",
     "accountDesc": "Manage your account",
     "about": "About PetCare Pocket",
@@ -161,7 +181,22 @@
     "currentPlan": "Current Plan",
     "free": "Free",
     "premium": "Premium",
-    "upgradeToPremium": "Upgrade to Premium"
+    "upgradeToPremium": "Upgrade to Premium",
+    "manageReminders": "Manage Reminders",
+    "manageRemindersDesc": "Default reminder settings",
+    "defaultRecurrence": "Default Recurrence",
+    "none": "None",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "defaultSnooze": "Default Snooze",
+    "snooze1h": "1 hour",
+    "snooze4h": "4 hours",
+    "snooze1d": "1 day",
+    "billing": "Billing",
+    "billingDesc": "Manage your subscription",
+    "renewalDate": "Renewal Date",
+    "cancelSubscription": "Cancel Subscription",
+    "savedToCloud": "Settings saved"
   },
   "premium": {
     "title": "Upgrade to Premium",
@@ -176,7 +211,14 @@
     "upgrade": "Upgrade Now",
     "restore": "Restore Purchase",
     "currentPlan": "You're on the {plan} plan",
-    "freeLimits": "Free plan: 1 pet, 10 records per category"
+    "freeLimits": "Free plan: 1 pet, 10 records per category",
+    "limitReached": "Limit Reached",
+    "petLimitDesc": "Free plan allows 1 pet. Upgrade to add unlimited pets.",
+    "recordLimitDesc": "Free plan allows 10 records per category. Upgrade for unlimited.",
+    "maybeLater": "Maybe later",
+    "bannerUnlimited": "Unlimited pets and health history",
+    "bannerSync": "Sync across all your devices",
+    "bannerVaccine": "Never miss a vaccine again"
   },
   "common": {
     "delete": "Delete",
@@ -184,6 +226,9 @@
     "areYouSure": "Are you sure?",
     "thisActionCannot": "This action cannot be undone.",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "edit": "Edit",
+    "saving": "Saving...",
+    "loading": "Loading..."
   }
 }

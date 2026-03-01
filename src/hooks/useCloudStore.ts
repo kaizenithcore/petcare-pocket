@@ -4,12 +4,20 @@ import { useAuth } from './useAuth';
 import { usePetStore, type Pet, type Vaccine, type Medication, type Visit, type Reminder, type SymptomLog } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 
+export interface UserSettings {
+  notification_enabled: boolean;
+  reminder_default_time: string;
+  overdue_alerts_enabled: boolean;
+  default_reminder_recurrence: string;
+  default_snooze_duration: string;
+  language: string;
+}
+
 export const useCloudStore = () => {
   const { user, isGuest } = useAuth();
   const store = usePetStore();
   const { toast } = useToast();
 
-  // Load cloud data when user logs in
   const loadCloudData = useCallback(async () => {
     if (!user) return;
 
@@ -59,7 +67,6 @@ export const useCloudStore = () => {
         duration: s.duration || '', urgency: s.urgency as SymptomLog['urgency'],
       }));
 
-      // Replace store data with cloud data
       usePetStore.setState({
         pets, vaccines, medications, visits, reminders, symptomLogs,
         activePetId: pets[0]?.id ?? null,
@@ -69,7 +76,6 @@ export const useCloudStore = () => {
     }
   }, [user]);
 
-  // Migrate local data to cloud
   const migrateLocalData = useCallback(async () => {
     if (!user) return;
     const { pets, vaccines, medications, visits, reminders, symptomLogs } = usePetStore.getState();
@@ -77,7 +83,6 @@ export const useCloudStore = () => {
     if (pets.length === 0) return;
 
     try {
-      // Insert pets
       for (const pet of pets) {
         const { data: inserted } = await supabase.from('pets').insert({
           user_id: user.id, name: pet.name, species: pet.species,
@@ -90,7 +95,6 @@ export const useCloudStore = () => {
         const oldId = pet.id;
         const newId = inserted.id;
 
-        // Insert related records with new pet id
         const petVaccines = vaccines.filter(v => v.petId === oldId);
         for (const v of petVaccines) {
           await supabase.from('vaccines').insert({
@@ -136,11 +140,8 @@ export const useCloudStore = () => {
         }
       }
 
-      // Clear local storage after migration
       localStorage.removeItem('petcare-pocket');
       toast({ title: 'Data migrated to cloud successfully!' });
-
-      // Reload from cloud
       await loadCloudData();
     } catch (err) {
       console.error('Migration failed:', err);
@@ -159,6 +160,31 @@ export const useCloudStore = () => {
     }).select().single();
     if (data) await loadCloudData();
     return data;
+  }, [user, loadCloudData]);
+
+  const updatePetCloud = useCallback(async (id: string, data: Partial<Pet>) => {
+    if (!user) return;
+    const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.species !== undefined) updateData.species = data.species;
+    if (data.breed !== undefined) updateData.breed = data.breed;
+    if (data.birthdate !== undefined) updateData.birthdate = data.birthdate;
+    if (data.weight !== undefined) updateData.weight = data.weight;
+    if (data.microchipId !== undefined) updateData.microchip_id = data.microchipId;
+    if (data.emergencyContact !== undefined) updateData.emergency_contact = data.emergencyContact;
+    if (data.photoUrl !== undefined) updateData.photo_url = data.photoUrl;
+
+    const { error } = await supabase.from('pets').update(updateData).eq('id', id).eq('user_id', user.id);
+    if (!error) await loadCloudData();
+    return { error };
+  }, [user, loadCloudData]);
+
+  const deletePetCloud = useCallback(async (id: string) => {
+    if (!user) return;
+    // CASCADE delete handles related records via FK constraints
+    const { error } = await supabase.from('pets').delete().eq('id', id).eq('user_id', user.id);
+    if (!error) await loadCloudData();
+    return { error };
   }, [user, loadCloudData]);
 
   const addVaccineCloud = useCallback(async (v: Omit<Vaccine, 'id'>) => {
@@ -222,10 +248,38 @@ export const useCloudStore = () => {
     await loadCloudData();
   }, [user, loadCloudData]);
 
+  // Settings operations
+  const loadSettings = useCallback(async (): Promise<UserSettings | null> => {
+    if (!user) return null;
+    const { data } = await supabase.from('profiles').select('notification_enabled, reminder_default_time, overdue_alerts_enabled, default_reminder_recurrence, default_snooze_duration, language').eq('user_id', user.id).single();
+    if (!data) return null;
+    return {
+      notification_enabled: data.notification_enabled ?? true,
+      reminder_default_time: data.reminder_default_time ?? '09:00',
+      overdue_alerts_enabled: data.overdue_alerts_enabled ?? true,
+      default_reminder_recurrence: data.default_reminder_recurrence ?? 'none',
+      default_snooze_duration: data.default_snooze_duration ?? '1h',
+      language: data.language ?? 'en',
+    };
+  }, [user]);
+
+  const saveSettings = useCallback(async (settings: Partial<UserSettings>) => {
+    if (!user) return;
+    await supabase.from('profiles').update(settings as any).eq('user_id', user.id);
+  }, [user]);
+
+  const deleteAccount = useCallback(async () => {
+    if (!user) return;
+    // Delete all user data (pets cascade handles records)
+    await supabase.from('pets').delete().eq('user_id', user.id);
+    await supabase.from('profiles').delete().eq('user_id', user.id);
+    // Sign out
+    await supabase.auth.signOut();
+  }, [user]);
+
   // Auto-load cloud data on auth
   useEffect(() => {
     if (user && !isGuest) {
-      // Check if there's local data to migrate
       const localData = localStorage.getItem('petcare-pocket');
       if (localData) {
         const parsed = JSON.parse(localData);
@@ -242,6 +296,8 @@ export const useCloudStore = () => {
     loadCloudData,
     migrateLocalData,
     addPetCloud,
+    updatePetCloud,
+    deletePetCloud,
     addVaccineCloud,
     addMedicationCloud,
     addVisitCloud,
@@ -249,6 +305,9 @@ export const useCloudStore = () => {
     toggleReminderCloud,
     deleteReminderCloud,
     addSymptomLogCloud,
+    loadSettings,
+    saveSettings,
+    deleteAccount,
     isCloud: !!user && !isGuest,
   };
 };

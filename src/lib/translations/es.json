@@ -3,7 +3,9 @@
     "name": "PetCare Pocket",
     "welcome": "¡Bienvenido!",
     "guestMode": "Modo invitado · Datos guardados localmente en este dispositivo",
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "success": "Éxito",
+    "error": "Error"
   },
   "nav": {
     "home": "Inicio",
@@ -32,11 +34,21 @@
     "passwordResetSent": "Se envió un enlace para restablecer tu contraseña.",
     "passwordUpdated": "¡Contraseña actualizada correctamente!",
     "tagline": "La salud de tu mascota, simplificada.",
-    "passwordMismatch": "Las contraseñas no coinciden"
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "changeEmail": "Cambiar correo",
+    "changePassword": "Cambiar contraseña",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountWarning": "Esto eliminará permanentemente tu cuenta y todos los datos asociados.",
+    "accountDeleted": "Cuenta eliminada correctamente."
   },
   "pets": {
     "addPet": "Agregar mascota",
     "addNewPet": "Agregar nueva mascota",
+    "editPet": "Editar mascota",
+    "deletePet": "Eliminar mascota",
+    "deleteWarning": "Esto eliminará permanentemente todos los registros de salud, recordatorios y datos de esta mascota.",
+    "petDeleted": "Mascota eliminada correctamente",
+    "petUpdated": "Mascota actualizada correctamente",
     "noPets": "Sin mascotas aún",
     "noPetsDesc": "Agrega tu primer amigo peludo para empezar",
     "name": "Nombre",
@@ -47,6 +59,7 @@
     "weightUnit": "kg",
     "emergencyContact": "Contacto de emergencia",
     "petInfo": "Info de mascota",
+    "microchipId": "ID de microchip",
     "dog": "Perro",
     "cat": "Gato",
     "other": "Otro"
@@ -63,7 +76,8 @@
     "given": "Aplicada",
     "at": "en",
     "due": "Próxima",
-    "ongoing": "en curso"
+    "ongoing": "en curso",
+    "diagnosis": "Diagnóstico"
   },
   "records": {
     "addVaccine": "Agregar vacuna",
@@ -146,8 +160,14 @@
     "title": "Ajustes",
     "notifications": "Preferencias de notificación",
     "notificationsDesc": "Administrar recordatorios y alertas",
+    "pushNotifications": "Notificaciones push",
+    "reminderDefaultTime": "Hora predeterminada",
+    "overdueAlerts": "Alertas de vencidos",
     "dataExport": "Exportar datos",
     "dataExportDesc": "Descargar tus datos como CSV",
+    "exportAll": "Exportar todos los datos",
+    "exporting": "Exportando...",
+    "exported": "Datos exportados correctamente",
     "account": "Cuenta",
     "accountDesc": "Administrar tu cuenta",
     "about": "Acerca de PetCare Pocket",
@@ -161,7 +181,22 @@
     "currentPlan": "Plan actual",
     "free": "Gratuito",
     "premium": "Premium",
-    "upgradeToPremium": "Mejorar a Premium"
+    "upgradeToPremium": "Mejorar a Premium",
+    "manageReminders": "Administrar recordatorios",
+    "manageRemindersDesc": "Ajustes de recordatorios predeterminados",
+    "defaultRecurrence": "Recurrencia predeterminada",
+    "none": "Ninguna",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "defaultSnooze": "Posponer predeterminado",
+    "snooze1h": "1 hora",
+    "snooze4h": "4 horas",
+    "snooze1d": "1 día",
+    "billing": "Facturación",
+    "billingDesc": "Administrar tu suscripción",
+    "renewalDate": "Fecha de renovación",
+    "cancelSubscription": "Cancelar suscripción",
+    "savedToCloud": "Ajustes guardados"
   },
   "premium": {
     "title": "Mejorar a Premium",
@@ -176,7 +211,14 @@
     "upgrade": "Mejorar ahora",
     "restore": "Restaurar compra",
     "currentPlan": "Estás en el plan {plan}",
-    "freeLimits": "Plan gratuito: 1 mascota, 10 registros por categoría"
+    "freeLimits": "Plan gratuito: 1 mascota, 10 registros por categoría",
+    "limitReached": "Límite alcanzado",
+    "petLimitDesc": "El plan gratuito permite 1 mascota. Mejora para agregar ilimitadas.",
+    "recordLimitDesc": "El plan gratuito permite 10 registros por categoría. Mejora para ilimitados.",
+    "maybeLater": "Quizás después",
+    "bannerUnlimited": "Mascotas e historial ilimitados",
+    "bannerSync": "Sincroniza en todos tus dispositivos",
+    "bannerVaccine": "Nunca pierdas una vacuna"
   },
   "common": {
     "delete": "Eliminar",
@@ -184,6 +226,9 @@
     "areYouSure": "¿Estás seguro?",
     "thisActionCannot": "Esta acción no se puede deshacer.",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "edit": "Editar",
+    "saving": "Guardando...",
+    "loading": "Cargando..."
   }
 }
