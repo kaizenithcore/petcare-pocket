@@ -4,9 +4,11 @@ import { useAuth } from './useAuth';
 import { usePetStore } from '@/lib/store';
 
 export type SubscriptionTier = 'free' | 'premium';
+export type PlanType = 'free' | 'monthly' | 'yearly';
 
 interface PremiumState {
   tier: SubscriptionTier;
+  planType: PlanType;
   loading: boolean;
   canAddPet: boolean;
   canAddRecord: (category: 'vaccines' | 'medications' | 'visits' | 'reminders' | 'symptomLogs') => boolean;
@@ -14,7 +16,7 @@ interface PremiumState {
   subscriptionStatus: string;
   subscriptionEnd: string | null;
   checkoutLoading: boolean;
-  startCheckout: () => Promise<void>;
+  startCheckout: (plan: 'monthly' | 'yearly') => Promise<void>;
   openBillingPortal: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
 }
@@ -25,6 +27,7 @@ const FREE_RECORD_LIMIT = 10;
 export const usePremium = (): PremiumState => {
   const { user } = useAuth();
   const [tier, setTier] = useState<SubscriptionTier>('free');
+  const [planType, setPlanType] = useState<PlanType>('free');
   const [loading, setLoading] = useState(true);
   const [subscriptionStatus, setSubscriptionStatus] = useState('none');
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
@@ -34,6 +37,7 @@ export const usePremium = (): PremiumState => {
   const refreshSubscription = useCallback(async () => {
     if (!user) {
       setTier('free');
+      setPlanType('free');
       setSubscriptionStatus('none');
       setSubscriptionEnd(null);
       setLoading(false);
@@ -44,18 +48,19 @@ export const usePremium = (): PremiumState => {
       const { data, error } = await supabase.functions.invoke('check-subscription');
       if (!error && data) {
         setTier(data.subscribed ? 'premium' : 'free');
+        setPlanType(data.plan_type || 'free');
         setSubscriptionStatus(data.subscription_status || 'none');
         setSubscriptionEnd(data.subscription_end || null);
       }
     } catch (e) {
       console.error('Error checking subscription:', e);
-      // Fallback to DB
       const { data: profile } = await supabase
         .from('profiles')
-        .select('subscription_tier')
+        .select('subscription_tier, plan_type')
         .eq('user_id', user.id)
         .single();
       setTier((profile?.subscription_tier as SubscriptionTier) || 'free');
+      setPlanType((profile?.plan_type as PlanType) || 'free');
     }
     setLoading(false);
   }, [user]);
@@ -64,18 +69,19 @@ export const usePremium = (): PremiumState => {
     refreshSubscription();
   }, [refreshSubscription]);
 
-  // Periodic refresh every 60s
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(refreshSubscription, 60000);
     return () => clearInterval(interval);
   }, [user, refreshSubscription]);
 
-  const startCheckout = useCallback(async () => {
+  const startCheckout = useCallback(async (plan: 'monthly' | 'yearly') => {
     if (!user || checkoutLoading) return;
     setCheckoutLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout-session');
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { plan },
+      });
       if (error) throw error;
       if (data?.url) {
         window.open(data.url, '_blank');
@@ -116,7 +122,7 @@ export const usePremium = (): PremiumState => {
   };
 
   return {
-    tier, loading, canAddPet, canAddRecord, isPremium,
+    tier, planType, loading, canAddPet, canAddRecord, isPremium,
     subscriptionStatus, subscriptionEnd,
     checkoutLoading, startCheckout, openBillingPortal, refreshSubscription,
   };

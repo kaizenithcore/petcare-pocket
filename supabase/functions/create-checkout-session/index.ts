@@ -6,7 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const PRICE_ID = 'price_1T6Cfn4h6w1Zia5gbAoorzsV';
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
+};
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -14,7 +17,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-01-27.acacia' });
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')!;
+    
+    // Runtime validation: warn if using test keys
+    if (stripeKey.startsWith('sk_test')) {
+      console.warn('[SECURITY] Using test Stripe key in production!');
+    }
+
+    const stripe = new Stripe(stripeKey, { apiVersion: '2025-01-27.acacia' });
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -36,6 +46,25 @@ Deno.serve(async (req) => {
     const userId = user.id;
     const email = user.email!;
 
+    // Parse request body for plan selection
+    const body = await req.json().catch(() => ({}));
+    const plan = body.plan || 'monthly';
+    
+    if (plan !== 'monthly' && plan !== 'yearly') {
+      return new Response(JSON.stringify({ error: 'Invalid plan. Must be "monthly" or "yearly".' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const priceId = plan === 'yearly' 
+      ? Deno.env.get('STRIPE_PRICE_YEARLY')
+      : Deno.env.get('STRIPE_PRICE_MONTHLY');
+
+    if (!priceId) {
+      logStep('ERROR', { message: `Price ID not configured for plan: ${plan}` });
+      return new Response(JSON.stringify({ error: 'Price not configured' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    logStep('Plan selected', { plan, priceId });
+
     // Check if user already has active subscription
     const { data: profile } = await supabase.from('profiles').select('stripe_customer_id, subscription_status').eq('user_id', userId).single();
     
@@ -55,12 +84,16 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      line_items: [{ price: PRICE_ID, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
       cancel_url: `${origin}/`,
-      metadata: { user_id: userId, app: 'PetCare Pocket' },
+      metadata: { user_id: userId, app: 'PetCare Pocket', plan },
+      allow_promotion_codes: true,
+      billing_address_collection: 'auto',
     });
+
+    logStep('Checkout session created', { sessionId: session.id, plan });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
