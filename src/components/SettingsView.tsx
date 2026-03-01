@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 interface SettingsViewProps {
@@ -36,10 +36,11 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
   });
   const [newPassword, setNewPassword] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
 
-  // Load cloud settings on mount
   useEffect(() => {
     if (isCloud) {
       loadSettings().then((s) => {
@@ -83,7 +84,10 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
   };
 
   const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') return;
+    setDeletingAccount(true);
     await deleteAccount();
+    setDeletingAccount(false);
     navigate('/auth');
   };
 
@@ -91,13 +95,10 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
     setExporting(true);
     try {
       const csvSections: string[] = [];
-
-      // Pets
       csvSections.push('=== PETS ===');
       csvSections.push('Name,Species,Breed,Birthdate,Weight,Microchip ID,Emergency Contact');
       pets.forEach(p => csvSections.push(`"${p.name}","${p.species}","${p.breed}","${p.birthdate}",${p.weight},"${p.microchipId || ''}","${p.emergencyContact}"`));
 
-      // Vaccines
       csvSections.push('\n=== VACCINES ===');
       csvSections.push('Pet,Name,Date Administered,Next Due,Clinic,Notes');
       vaccines.forEach(v => {
@@ -105,7 +106,6 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
         csvSections.push(`"${pet?.name || ''}","${v.name}","${v.dateAdministered}","${v.nextDueDate}","${v.clinicName}","${v.notes}"`);
       });
 
-      // Medications
       csvSections.push('\n=== MEDICATIONS ===');
       csvSections.push('Pet,Name,Dose,Frequency,Start,End,Notes');
       medications.forEach(m => {
@@ -113,7 +113,6 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
         csvSections.push(`"${pet?.name || ''}","${m.name}","${m.dose}","${m.frequency}","${m.startDate}","${m.endDate}","${m.notes}"`);
       });
 
-      // Visits
       csvSections.push('\n=== VISITS ===');
       csvSections.push('Pet,Date,Reason,Diagnosis,Notes');
       visits.forEach(v => {
@@ -121,7 +120,6 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
         csvSections.push(`"${pet?.name || ''}","${v.date}","${v.reason}","${v.diagnosis}","${v.notes}"`);
       });
 
-      // Symptoms
       csvSections.push('\n=== SYMPTOM LOGS ===');
       csvSections.push('Pet,Date,Symptoms,Duration,Urgency,Notes');
       symptomLogs.forEach(s => {
@@ -313,7 +311,7 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
                 </div>
               </div>
 
-              {/* Delete Account */}
+              {/* Delete Account - Enhanced with type DELETE */}
               <div className="pt-2 border-t border-border">
                 {!showDeleteConfirm ? (
                   <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-sm text-destructive">
@@ -322,9 +320,23 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
                 ) : (
                   <div className="bg-destructive/5 rounded-xl p-3 space-y-2">
                     <p className="text-xs text-muted-foreground">{t('auth.deleteAccountWarning')}</p>
+                    <Input
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder={t('settings.typeDelete')}
+                      className="rounded-xl text-sm"
+                    />
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)} className="flex-1 rounded-xl">{t('common.no')}</Button>
-                      <Button variant="destructive" size="sm" onClick={handleDeleteAccount} className="flex-1 rounded-xl">{t('common.delete')}</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }} className="flex-1 rounded-xl">{t('common.no')}</Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDeleteAccount}
+                        disabled={deleteConfirmText !== 'DELETE' || deletingAccount}
+                        className="flex-1 rounded-xl"
+                      >
+                        {deletingAccount ? t('settings.deleting') : t('common.delete')}
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -353,6 +365,15 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
           <p className="text-xs text-center text-muted-foreground">{t('app.guestMode')}</p>
         </div>
       ) : null}
+
+      {/* Legal links */}
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-2 text-[10px] text-muted-foreground">
+        <Link to="/privacy" className="hover:text-foreground transition-colors">{t('legal.privacyPolicy')}</Link>
+        <span>·</span>
+        <Link to="/terms" className="hover:text-foreground transition-colors">{t('legal.termsAndConditions')}</Link>
+        <span>·</span>
+        <Link to="/cookies" className="hover:text-foreground transition-colors">{t('legal.cookiePolicy')}</Link>
+      </div>
     </div>
   );
 };
