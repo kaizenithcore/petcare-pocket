@@ -155,12 +155,12 @@ export const useCloudStore = () => {
   // Cloud CRUD operations
   const addPetCloud = useCallback(async (pet: Omit<Pet, 'id'>) => {
     if (!user) return;
-    const { data, error } = await supabase.from('pets').upsert({
+    const { data, error } = await supabase.from('pets').insert({
       user_id: user.id, name: pet.name, species: pet.species,
       breed: pet.breed, birthdate: pet.birthdate,
       weight: pet.weight, microchip_id: pet.microchipId,
       emergency_contact: pet.emergencyContact,
-    }, { onConflict: 'unique_user_pet_name_species', ignoreDuplicates: true }).select().single();
+    }).select().single();
     if (error) console.error('addPetCloud error:', error);
     if (data) await loadCloudData();
     return data;
