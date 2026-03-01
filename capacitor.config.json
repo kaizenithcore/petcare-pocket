@@ -1,0 +1,9 @@
+{
+  "appId": "app.lovable.e23b6cfabab642b3b6cefd2e84fbabfd",
+  "appName": "PetCare Pocket",
+  "webDir": "dist",
+  "server": {
+    "url": "https://e23b6cfa-bab6-42b3-b6ce-fd2e84fbabfd.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  }
+}
