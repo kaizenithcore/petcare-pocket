@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Syringe, Pill, Stethoscope, Bell, Thermometer, Crown } from 'lucide-react';
+import { Plus, Syringe, Pill, Stethoscope, Bell, Thermometer } from 'lucide-react';
 import PetCarousel from '@/components/PetCarousel';
 import AddPetDialog from '@/components/AddPetDialog';
+import EditPetDialog from '@/components/EditPetDialog';
 import AddRecordDialog from '@/components/AddRecordDialog';
 import SymptomChecker from '@/components/SymptomChecker';
 import PetHealthTabs from '@/components/PetHealthTabs';
@@ -11,9 +12,14 @@ import CalendarView from '@/components/CalendarView';
 import UpgradePremium from '@/components/UpgradePremium';
 import SettingsView from '@/components/SettingsView';
 import BottomNav, { type TabId } from '@/components/BottomNav';
+import PremiumGateModal from '@/components/PremiumGateModal';
+import PremiumBanner from '@/components/PremiumBanner';
 import { usePetStore, speciesEmoji } from '@/lib/store';
 import { useCloudStore } from '@/hooks/useCloudStore';
+import { usePremium } from '@/hooks/usePremium';
 import { useTranslation } from '@/lib/i18n';
+import { useToast } from '@/hooks/use-toast';
+import type { Pet } from '@/lib/store';
 
 const quickActions = [
   { id: 'vaccine' as const, label: 'quickActions.vaccine', icon: Syringe, bg: 'bg-primary/10', color: 'text-primary' },
@@ -25,13 +31,17 @@ const quickActions = [
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const [showAddPet, setShowAddPet] = useState(false);
+  const [showEditPet, setShowEditPet] = useState(false);
   const [recordType, setRecordType] = useState<'vaccine' | 'medication' | 'visit' | 'reminder' | null>(null);
   const [showSymptoms, setShowSymptoms] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showPremiumGate, setShowPremiumGate] = useState<'pet' | 'record' | null>(null);
 
   const { pets, activePetId, reminders } = usePetStore();
   const cloudStore = useCloudStore();
+  const { canAddPet, canAddRecord, isPremium } = usePremium();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const activePet = pets.find((p) => p.id === activePetId);
 
   const today = new Date().toISOString().split('T')[0];
@@ -40,6 +50,48 @@ const Index = () => {
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
     .slice(0, 3);
   const overdueCount = reminders.filter((r) => r.petId === activePetId && !r.completed && r.dueDate < today).length;
+
+  const handleAddPet = () => {
+    if (!canAddPet) {
+      setShowPremiumGate('pet');
+      return;
+    }
+    setShowAddPet(true);
+  };
+
+  const handleAddRecord = (type: 'vaccine' | 'medication' | 'visit' | 'reminder') => {
+    const category = type === 'vaccine' ? 'vaccines' : type === 'medication' ? 'medications' : type === 'visit' ? 'visits' : 'reminders';
+    if (!canAddRecord(category)) {
+      setShowPremiumGate('record');
+      return;
+    }
+    setRecordType(type);
+  };
+
+  const handleUpdatePet = async (id: string, data: Partial<Pet>) => {
+    if (cloudStore.isCloud) {
+      await cloudStore.updatePetCloud(id, data);
+      toast({ title: t('pets.petUpdated') });
+    } else {
+      usePetStore.getState().updatePet(id, data);
+      toast({ title: t('pets.petUpdated') });
+    }
+  };
+
+  const handleDeletePet = async (id: string) => {
+    if (cloudStore.isCloud) {
+      await cloudStore.deletePetCloud(id);
+    } else {
+      usePetStore.getState().deletePet(id);
+    }
+    toast({ title: t('pets.petDeleted') });
+  };
+
+  const goToUpgrade = () => {
+    setShowPremiumGate(null);
+    setActiveTab('settings');
+    setShowUpgrade(true);
+  };
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
@@ -66,7 +118,7 @@ const Index = () => {
           {activeTab === 'home' && (
             <motion.div key="home" {...pageVariants} className="space-y-6">
               <section>
-                <PetCarousel onAddPet={() => setShowAddPet(true)} />
+                <PetCarousel onAddPet={handleAddPet} onEditPet={() => setShowEditPet(true)} />
               </section>
 
               {activePet && (
@@ -89,7 +141,7 @@ const Index = () => {
                       {quickActions.map((action) => {
                         const Icon = action.icon;
                         return (
-                          <motion.button key={action.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setRecordType(action.id)} className={`flex flex-col items-center gap-1.5 rounded-2xl p-3 ${action.bg} transition-all`}>
+                          <motion.button key={action.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleAddRecord(action.id)} className={`flex flex-col items-center gap-1.5 rounded-2xl p-3 ${action.bg} transition-all`}>
                             <Icon size={20} className={action.color} />
                             <span className="text-[11px] font-semibold text-foreground">{t(action.label)}</span>
                           </motion.button>
@@ -130,8 +182,14 @@ const Index = () => {
                       <div><p className="text-xs text-muted-foreground">{t('pets.breed')}</p><p className="font-semibold text-foreground">{activePet.breed || '—'}</p></div>
                       <div><p className="text-xs text-muted-foreground">{t('pets.birthdate')}</p><p className="font-semibold text-foreground">{activePet.birthdate || '—'}</p></div>
                       <div><p className="text-xs text-muted-foreground">{t('pets.weight')}</p><p className="font-semibold text-foreground">{activePet.weight ? `${activePet.weight} ${t('pets.weightUnit')}` : '—'}</p></div>
+                      {activePet.microchipId && (
+                        <div className="col-span-2"><p className="text-xs text-muted-foreground">{t('pets.microchipId')}</p><p className="font-semibold text-foreground">{activePet.microchipId}</p></div>
+                      )}
                     </div>
                   </section>
+
+                  {/* Conversion banner */}
+                  <PremiumBanner variant="default" onUpgrade={goToUpgrade} />
                 </>
               )}
             </motion.div>
@@ -144,7 +202,7 @@ const Index = () => {
                 <>
                   <div className="flex gap-2">
                     {quickActions.slice(0, 3).map((a) => (
-                      <button key={a.id} onClick={() => setRecordType(a.id)} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${a.bg} ${a.color}`}>
+                      <button key={a.id} onClick={() => handleAddRecord(a.id)} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${a.bg} ${a.color}`}>
                         <Plus size={14} /> {t(a.label)}
                       </button>
                     ))}
@@ -152,15 +210,21 @@ const Index = () => {
                   <PetHealthTabs />
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-8">{t('health.addRecord')}</p>
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">{t('health.addRecord')}</p>
+                  <PremiumBanner variant="vaccine" onUpgrade={goToUpgrade} />
+                </div>
               )}
             </motion.div>
           )}
 
           {activeTab === 'calendar' && (
-            <motion.div key="calendar" {...pageVariants}>
+            <motion.div key="calendar" {...pageVariants} className="space-y-4">
               {activePet ? (
-                <CalendarView onAddReminder={() => setRecordType('reminder')} />
+                <>
+                  <CalendarView onAddReminder={() => handleAddRecord('reminder')} />
+                  <PremiumBanner variant="sync" onUpgrade={goToUpgrade} />
+                </>
               ) : (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">{t('reminders.addPetFirst')}</p>
@@ -173,7 +237,7 @@ const Index = () => {
             <motion.div key="reminders" {...pageVariants} className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground">{t('reminders.title')}</h2>
-                <button onClick={() => setRecordType('reminder')} className="flex items-center gap-1 rounded-full bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold">
+                <button onClick={() => handleAddRecord('reminder')} className="flex items-center gap-1 rounded-full bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold">
                   <Plus size={14} /> {t('reminders.add')}
                 </button>
               </div>
@@ -194,7 +258,7 @@ const Index = () => {
       </main>
 
       {activeTab === 'home' && pets.length > 0 && (
-        <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setShowAddPet(true)} className="fixed bottom-24 right-4 z-30 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-float flex items-center justify-center">
+        <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleAddPet} className="fixed bottom-24 right-4 z-30 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-float flex items-center justify-center">
           <Plus size={24} />
         </motion.button>
       )}
@@ -202,8 +266,21 @@ const Index = () => {
       <BottomNav active={activeTab} onChange={setActiveTab} />
 
       <AddPetDialog open={showAddPet} onClose={() => setShowAddPet(false)} />
+      <EditPetDialog
+        open={showEditPet}
+        onClose={() => setShowEditPet(false)}
+        pet={activePet || null}
+        onSave={handleUpdatePet}
+        onDelete={handleDeletePet}
+      />
       <AddRecordDialog open={!!recordType} onClose={() => setRecordType(null)} type={recordType || 'vaccine'} />
       <SymptomChecker open={showSymptoms} onClose={() => setShowSymptoms(false)} />
+      <PremiumGateModal
+        open={!!showPremiumGate}
+        onClose={() => setShowPremiumGate(null)}
+        onUpgrade={goToUpgrade}
+        limitType={showPremiumGate || 'pet'}
+      />
     </div>
   );
 };
