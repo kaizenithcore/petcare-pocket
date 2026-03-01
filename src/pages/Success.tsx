@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Crown, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,12 +8,13 @@ import { useTranslation } from '@/lib/i18n';
 const Success = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [checking, setChecking] = useState(true);
+  const plan = searchParams.get('plan') || 'monthly';
 
   useEffect(() => {
     const verify = async () => {
       try {
-        // Call check-subscription to sync Stripe state with DB
         await supabase.functions.invoke('check-subscription');
       } catch (e) {
         console.error('Subscription check error:', e);
@@ -22,8 +23,6 @@ const Success = () => {
     };
 
     verify();
-
-    // Redirect to dashboard after 4 seconds
     const timer = setTimeout(() => navigate('/', { replace: true }), 4000);
     return () => clearTimeout(timer);
   }, [navigate]);
@@ -49,7 +48,9 @@ const Success = () => {
             {t('premium.activated')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            {t('premium.activatedDesc')}
+            {plan === 'yearly'
+              ? t('premium.yearlyActivatedDesc')
+              : t('premium.monthlyActivatedDesc')}
           </p>
         </div>
 

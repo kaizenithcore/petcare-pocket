@@ -144,8 +144,10 @@ export type Database = {
           language: string
           notification_enabled: boolean
           overdue_alerts_enabled: boolean
+          plan_type: string
           reminder_default_time: string
           stripe_customer_id: string | null
+          stripe_price_id: string | null
           stripe_subscription_id: string | null
           subscription_expires_at: string | null
           subscription_status: string
@@ -163,8 +165,10 @@ export type Database = {
           language?: string
           notification_enabled?: boolean
           overdue_alerts_enabled?: boolean
+          plan_type?: string
           reminder_default_time?: string
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string
@@ -182,8 +186,10 @@ export type Database = {
           language?: string
           notification_enabled?: boolean
           overdue_alerts_enabled?: boolean
+          plan_type?: string
           reminder_default_time?: string
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string
