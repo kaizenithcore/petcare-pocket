@@ -31,6 +31,9 @@ const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
 
   const monthlyPrice = 4.99;
   const yearlyPrice = 44.99;
+  const discountedMonthly = (monthlyPrice * 0.5);
+  const discountedYearly = (yearlyPrice * 0.5);
+  const discountedYearlyMonthly = (discountedYearly / 12).toFixed(2);
   const yearlyMonthly = (yearlyPrice / 12).toFixed(2);
   const savingsPerYear = (monthlyPrice * 12 - yearlyPrice).toFixed(2);
   const savingsPercent = Math.round((1 - yearlyPrice / (monthlyPrice * 12)) * 100);
@@ -106,7 +109,8 @@ const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
                 <p className="text-xs text-muted-foreground">{t('premium.cancelAnytime')}</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-extrabold text-foreground">€{monthlyPrice}</p>
+                <p className="text-xs text-muted-foreground line-through">€{monthlyPrice}</p>
+                <p className="text-lg font-extrabold text-accent">€{discountedMonthly.toFixed(2)}</p>
                 <p className="text-xs text-muted-foreground">/{t('premium.perMonth')}</p>
               </div>
             </CardContent>
@@ -131,11 +135,12 @@ const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
                 <div>
                   <p className="text-sm font-bold text-foreground">{t('premium.yearlyPlan')}</p>
                   <p className="text-xs text-muted-foreground">
-                    €{yearlyMonthly}/{t('premium.perMonth')}
+                    €{discountedYearlyMonthly}/{t('premium.perMonth')}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-extrabold text-foreground">€{yearlyPrice}</p>
+                  <p className="text-xs text-muted-foreground line-through">€{yearlyPrice}</p>
+                  <p className="text-lg font-extrabold text-accent">€{discountedYearly.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">/{t('premium.perYear')}</p>
                 </div>
               </div>
