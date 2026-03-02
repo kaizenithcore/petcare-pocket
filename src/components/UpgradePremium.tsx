@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Crown, Check, ArrowLeft, Loader2, Star } from 'lucide-react';
+import { Crown, Check, ArrowLeft, Loader2, Star, Sparkles, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +52,31 @@ const UpgradePremium = ({ onBack }: UpgradePremiumProps) => {
         <h2 className="text-xl font-extrabold text-foreground">{t('premium.title')}</h2>
         <p className="text-sm text-muted-foreground mt-1">{t('premium.subtitle')}</p>
       </div>
+
+      {/* LAUNCH50 Promo Banner */}
+      {canUpgrade && (
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative bg-gradient-to-r from-accent/20 via-peach/20 to-lavender/20 border-2 border-accent/30 rounded-2xl p-4 overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 bg-accent text-accent-foreground text-[10px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1">
+            <Clock size={10} /> {t('promo.limitedTime')}
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center shrink-0">
+              <Sparkles size={22} className="text-accent" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-extrabold text-foreground">{t('promo.launch50Title')}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('promo.launch50Desc')}</p>
+              <div className="mt-1.5 inline-flex items-center bg-card border border-border rounded-lg px-2.5 py-1">
+                <code className="text-sm font-bold tracking-wider text-accent">LAUNCH50</code>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <div className="bg-card rounded-2xl p-5 shadow-card space-y-3">
         {features.map((feature) => (

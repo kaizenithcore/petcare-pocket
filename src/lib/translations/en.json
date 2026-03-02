@@ -352,5 +352,11 @@
     "saving": "Saving...",
     "loading": "Loading...",
     "back": "Back"
+  },
+  "promo": {
+    "limitedTime": "Limited time",
+    "launch50Title": "🚀 Launch Offer: 50% OFF!",
+    "launch50Desc": "Use code LAUNCH50 at checkout. Valid only during March — don't miss it!",
+    "bannerShort": "50% off this March only!"
   }
 }
