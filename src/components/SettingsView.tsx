@@ -4,13 +4,14 @@ import { useTranslation, type Language } from '@/lib/i18n';
 import { usePremium } from '@/hooks/usePremium';
 import { useCloudStore, type UserSettings } from '@/hooks/useCloudStore';
 import { usePetStore } from '@/lib/store';
-import { Crown, Globe, LogOut, Bell, Download, User, ChevronRight, Trash2 } from 'lucide-react';
+import { Crown, Globe, LogOut, Bell, Download, User, ChevronRight, Trash2, Sun, Moon } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
 
 interface SettingsViewProps {
   onUpgrade: () => void;
@@ -24,6 +25,7 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
   const { pets, vaccines, medications, visits, symptomLogs } = usePetStore();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [settings, setSettings] = useState<UserSettings>({
@@ -169,6 +171,20 @@ const SettingsView = ({ onUpgrade }: SettingsViewProps) => {
               <SelectItem value="es">{t('settings.spanish')}</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      {/* Theme */}
+      <div className="bg-card rounded-xl p-4 shadow-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {theme === 'dark' ? <Moon size={18} className="text-muted-foreground" /> : <Sun size={18} className="text-muted-foreground" />}
+            <div>
+              <p className="text-sm font-semibold text-foreground">{t('settings.theme')}</p>
+              <p className="text-xs text-muted-foreground">{t('settings.themeDesc')}</p>
+            </div>
+          </div>
+          <Switch checked={theme === 'dark'} onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')} />
         </div>
       </div>
 

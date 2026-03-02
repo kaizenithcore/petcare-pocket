@@ -8,6 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { usePetStore, generateId, SYMPTOM_OPTIONS, getUrgency } from '@/lib/store';
 import { useTranslation } from '@/lib/i18n';
 
+const SYMPTOM_KEYS: Record<string, string> = {
+  'Vomiting': 'symptoms.vomiting',
+  'Diarrhea': 'symptoms.diarrhea',
+  'Lethargy': 'symptoms.lethargy',
+  'Fever': 'symptoms.fever',
+  'Appetite loss': 'symptoms.appetiteLoss',
+  'Coughing': 'symptoms.coughing',
+  'Sneezing': 'symptoms.sneezing',
+  'Limping': 'symptoms.limping',
+  'Scratching': 'symptoms.scratching',
+  'Eye discharge': 'symptoms.eyeDischarge',
+  'Ear issues': 'symptoms.earIssues',
+  'Skin issues': 'symptoms.skinIssues',
+  'Breathing difficulty': 'symptoms.breathingDifficulty',
+  'Weight loss': 'symptoms.weightLoss',
+};
+
 interface SymptomCheckerProps {
   open: boolean;
   onClose: () => void;
@@ -108,7 +125,7 @@ const SymptomChecker = ({ open, onClose }: SymptomCheckerProps) => {
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
-                    {symptom}
+                    {t(SYMPTOM_KEYS[symptom] || symptom)}
                   </button>
                 ))}
               </div>
@@ -130,7 +147,7 @@ const SymptomChecker = ({ open, onClose }: SymptomCheckerProps) => {
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder={t('symptoms.additionalNotes')}
+                    placeholder={t('symptoms.notesPlaceholder')}
                     className="mt-1 rounded-xl resize-none"
                     rows={3}
                   />
@@ -159,7 +176,7 @@ const SymptomChecker = ({ open, onClose }: SymptomCheckerProps) => {
                 <p className="text-sm font-semibold text-foreground mb-2">{t('symptoms.loggedSymptoms')}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {selected.map((s) => (
-                    <span key={s} className="text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">{s}</span>
+                    <span key={s} className="text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">{t(SYMPTOM_KEYS[s] || s)}</span>
                   ))}
                 </div>
               </div>
