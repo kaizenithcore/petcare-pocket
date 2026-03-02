@@ -145,6 +145,7 @@
     "threeToSeven": "3–7 días",
     "moreThanWeek": "Más de una semana",
     "additionalNotes": "Notas adicionales",
+    "notesPlaceholder": "Describe cualquier otra observación...",
     "checkSymptoms": "Verificar síntomas",
     "loggedSymptoms": "Síntomas registrados:",
     "disclaimer": "⚠️ Esto es solo informativo y no constituye consejo médico.",
@@ -157,7 +158,21 @@
     "highAdvice": "Recomendamos contactar a tu veterinario lo antes posible.",
     "moderateAdvice": "Vigila de cerca. Si los síntomas persisten o empeoran, consulta a tu veterinario.",
     "lowAdvice": "Mantén un ojo en tu mascota. Estos síntomas suelen ser leves.",
-    "checkFor": "Verificación de síntomas para {name}"
+    "checkFor": "Verificación de síntomas para {name}",
+    "vomiting": "Vómitos",
+    "diarrhea": "Diarrea",
+    "lethargy": "Letargo",
+    "fever": "Fiebre",
+    "appetiteLoss": "Pérdida de apetito",
+    "coughing": "Tos",
+    "sneezing": "Estornudos",
+    "limping": "Cojera",
+    "scratching": "Rascado",
+    "eyeDischarge": "Secreción ocular",
+    "earIssues": "Problemas de oído",
+    "skinIssues": "Problemas de piel",
+    "breathingDifficulty": "Dificultad respiratoria",
+    "weightLoss": "Pérdida de peso"
   },
   "quickActions": {
     "title": "Agregar rápido",
@@ -208,7 +223,9 @@
     "cancelSubscription": "Cancelar suscripción",
     "savedToCloud": "Ajustes guardados",
     "typeDelete": "Escribe DELETE para confirmar",
-    "deleting": "Eliminando..."
+    "deleting": "Eliminando...",
+    "theme": "Tema",
+    "themeDesc": "Alternar entre modo claro y oscuro"
   },
   "premium": {
     "title": "Mejorar a Premium",

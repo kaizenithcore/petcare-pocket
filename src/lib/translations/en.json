@@ -145,6 +145,7 @@
     "threeToSeven": "3–7 days",
     "moreThanWeek": "More than a week",
     "additionalNotes": "Additional notes",
+    "notesPlaceholder": "Describe any other observations...",
     "checkSymptoms": "Check Symptoms",
     "loggedSymptoms": "Logged symptoms:",
     "disclaimer": "⚠️ This is for informational purposes only and is not medical advice.",
@@ -157,7 +158,21 @@
     "highAdvice": "We recommend contacting your veterinarian as soon as possible.",
     "moderateAdvice": "Monitor closely. If symptoms persist or worsen, consult your vet.",
     "lowAdvice": "Keep an eye on your pet. These symptoms are usually mild.",
-    "checkFor": "Symptom Check for {name}"
+    "checkFor": "Symptom Check for {name}",
+    "vomiting": "Vomiting",
+    "diarrhea": "Diarrhea",
+    "lethargy": "Lethargy",
+    "fever": "Fever",
+    "appetiteLoss": "Appetite loss",
+    "coughing": "Coughing",
+    "sneezing": "Sneezing",
+    "limping": "Limping",
+    "scratching": "Scratching",
+    "eyeDischarge": "Eye discharge",
+    "earIssues": "Ear issues",
+    "skinIssues": "Skin issues",
+    "breathingDifficulty": "Breathing difficulty",
+    "weightLoss": "Weight loss"
   },
   "quickActions": {
     "title": "Quick Add",
@@ -208,7 +223,9 @@
     "cancelSubscription": "Cancel Subscription",
     "savedToCloud": "Settings saved",
     "typeDelete": "Type DELETE to confirm",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "theme": "Theme",
+    "themeDesc": "Switch between light and dark mode"
   },
   "premium": {
     "title": "Upgrade to Premium",
